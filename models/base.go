@@ -32,7 +32,8 @@ func init() {
 	}
 
 	db = conn
-	db.Debug().AutoMigrate(&User{}) //Database migration
+	db.Debug().AutoMigrate(&User{}, &Task{}) //Database migration
+	// defer db.Close()
 }
 
 //returns a handle to the DB object
