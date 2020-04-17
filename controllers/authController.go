@@ -9,7 +9,6 @@ import (
 )
 
 var CreateUser = func(w http.ResponseWriter, r *http.Request) {
-
 	user := &models.User{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
@@ -22,7 +21,6 @@ var CreateUser = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var Authenticate = func(w http.ResponseWriter, r *http.Request) {
-
 	user := &models.User{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
@@ -31,5 +29,14 @@ var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := models.Login(user.Email, user.Password)
+	u.Respond(w, resp)
+}
+
+var CurrentUser = func(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("user").(uint)
+	data := models.Current((user))
+
+	resp := u.Message(true, "success")
+	resp["data"] = data
 	u.Respond(w, resp)
 }

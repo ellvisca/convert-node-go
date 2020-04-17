@@ -67,6 +67,7 @@ func (user *User) Create() map[string]interface{} {
 	return response
 }
 
+//Login for registered user
 func Login(email, password string) map[string]interface{} {
 
 	user := &User{}
@@ -93,5 +94,16 @@ func Login(email, password string) map[string]interface{} {
 	response := u.Message(true, "Logged in")
 	response["user"] = user
 	return response
+}
 
+//Get current user
+func Current(u uint) *User {
+	user := &User{}
+	GetDB().Table("users").Where("id = ?", u).First(user)
+	if user.Email == "" {
+		return nil
+	}
+
+	user.Password = ""
+	return user
 }
