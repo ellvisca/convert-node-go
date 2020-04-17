@@ -22,3 +22,12 @@ var CreateTask = func(w http.ResponseWriter, r *http.Request) {
 	resp := task.Create()
 	u.Respond(w, resp)
 }
+
+var MyTask = func(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("user").(uint)
+	data := models.MyTask(user)
+
+	resp := u.Message(true, "success")
+	resp["data"] = data
+	u.Respond(w, resp)
+}

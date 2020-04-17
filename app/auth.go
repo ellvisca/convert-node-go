@@ -21,7 +21,7 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 		//Current request path
 		requestPath := r.URL.Path
 
-		//check if request does not need authentication, serve the request if it doesn't need it
+		//Check if request does not need authentication, serve the request if it doesn't need it
 		for _, value := range notAuth {
 
 			if value == requestPath {
@@ -30,10 +30,12 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 			}
 		}
 
+		//Grab token from header
 		response := make(map[string]interface{})
-		tokenHeader := r.Header.Get("Authorization") //Grab the token from the header
+		tokenHeader := r.Header.Get("Authorization")
 
-		if tokenHeader == "" { //Token is missing, returns with error code 403 Unauthorized
+		//Unauthorized error (403)
+		if tokenHeader == "" {
 			response = u.Message(false, "Missing auth token")
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")
@@ -41,7 +43,8 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 			return
 		}
 
-		splitted := strings.Split(tokenHeader, " ") //The token normally comes in format `Bearer {token-body}`, we check if the retrieved token matched this requirement
+		//Bearer + token
+		splitted := strings.Split(tokenHeader, " ")
 		if len(splitted) != 2 {
 			response = u.Message(false, "Invalid/Malformed auth token")
 			w.WriteHeader(http.StatusForbidden)
@@ -49,15 +52,15 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 			u.Respond(w, response)
 			return
 		}
-
-		tokenPart := splitted[1] //Grab the token part, what we are truly interested in
+		tokenPart := splitted[1]
 		tk := &models.Token{}
 
 		token, err := jwt.ParseWithClaims(tokenPart, tk, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("token_password")), nil
 		})
 
-		if err != nil { //Malformed token, returns with http code 403 as usual
+		//Malformed token
+		if err != nil {
 			response = u.Message(false, "Malformed authentication token")
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")
@@ -65,7 +68,8 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 			return
 		}
 
-		if !token.Valid { //Token is invalid, maybe not signed on this server
+		//Invalid token
+		if !token.Valid {
 			response = u.Message(false, "Token is not valid.")
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")
@@ -77,7 +81,7 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 		fmt.Sprintf("User %", tk.UserId) //Useful for monitoring
 		ctx := context.WithValue(r.Context(), "user", tk.UserId)
 		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r) //proceed in the middleware chain!
+		next.ServeHTTP(w, r)
 	})
 
 }

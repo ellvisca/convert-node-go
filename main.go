@@ -17,8 +17,11 @@ func main() {
 	//User router
 	router.HandleFunc("/api/user", controllers.CreateUser).Methods("POST")
 	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
+	router.HandleFunc("/api/user/me", controllers.CurrentUser).Methods("GET")
+
 	//Task router
 	router.HandleFunc("/api/task", controllers.CreateTask).Methods("POST")
+	router.HandleFunc("/api/task/me", controllers.MyTask).Methods("GET")
 
 	//Middleware
 	router.Use(app.JwtAuthentication)
@@ -28,9 +31,9 @@ func main() {
 		port = "8000" //localhost
 	}
 
-	fmt.Println(port)
+	fmt.Println("Listening on port ", port)
 
-	err := http.ListenAndServe(":"+port, router) //Launch the app, visit localhost:8000/api
+	err := http.ListenAndServe(":"+port, router)
 	if err != nil {
 		fmt.Print(err)
 	}
