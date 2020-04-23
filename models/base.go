@@ -1,42 +1,38 @@
 package models
 
 import (
+	"context"
 	"fmt"
-	"os"
+	"log"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var db *gorm.DB
+var db *mongo.Database
 
 func init() {
+	// Set client options
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 
-	e := godotenv.Load()
-	if e != nil {
-		fmt.Print(e)
-	}
+	// Connect to MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
 
-	username := os.Getenv("db_user")
-	password := os.Getenv("db_password")
-	dbName := os.Getenv("db_name")
-	dbHost := os.Getenv("db_host")
-
-	dbUri := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, username, dbName, password) //Build connection string
-	fmt.Println(dbUri)
-
-	conn, err := gorm.Open("postgres", dbUri)
 	if err != nil {
-		fmt.Print(err)
+		log.Fatal(err)
 	}
 
-	db = conn
-	db.Debug().AutoMigrate(&User{}, &Task{}) //Database migration
-	// defer db.Close()
+	// Check the connection
+	err = client.Ping(context.TODO(), nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Connected to MongoDB!")
+	db = client.Database("todolist")
 }
 
-//returns a handle to the DB object
-func GetDB() *gorm.DB {
+func GetDB() *mongo.Database {
 	return db
 }

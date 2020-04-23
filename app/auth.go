@@ -8,15 +8,15 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/ellvisca/convert-node-go/models"
-	u "github.com/ellvisca/convert-node-go/utils"
+	"github.com/ellvisca/todolist/models"
+	u "github.com/ellvisca/todolist/utils"
 )
 
 var JwtAuthentication = func(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		//List of endpoint that doesn't need authentication
-		notAuth := []string{"/api/user", "/api/login"}
+		notAuth := []string{"/api/user", "/api/user/login"}
 
 		//Current request path
 		requestPath := r.URL.Path
