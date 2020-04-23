@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/ellvisca/convert-node-go/models"
-	u "github.com/ellvisca/convert-node-go/utils"
+	"github.com/ellvisca/todolist/models"
+	u "github.com/ellvisca/todolist/utils"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var CreateTask = func(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value("user").(uint)
+	userId := r.Context().Value("user").(primitive.ObjectID)
 	task := &models.Task{}
 
 	err := json.NewDecoder(r.Body).Decode(task)
@@ -18,13 +19,13 @@ var CreateTask = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task.UserId = user
+	task.Owner = userId
 	resp := task.Create()
 	u.Respond(w, resp)
 }
 
 var MyTask = func(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value("user").(uint)
+	user := r.Context().Value("user").(primitive.ObjectID)
 	data := models.MyTask(user)
 
 	resp := u.Message(true, "success")

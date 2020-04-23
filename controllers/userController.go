@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/ellvisca/convert-node-go/models"
-	u "github.com/ellvisca/convert-node-go/utils"
+	"github.com/ellvisca/todolist/models"
+	u "github.com/ellvisca/todolist/utils"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+var collection = models.GetDB().Collection("users")
 
 var CreateUser = func(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{}
@@ -33,7 +36,7 @@ var Authenticate = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var CurrentUser = func(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value("user").(uint)
+	user := r.Context().Value("user").(primitive.ObjectID)
 	data := models.Current((user))
 
 	resp := u.Message(true, "success")

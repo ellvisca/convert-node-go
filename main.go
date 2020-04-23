@@ -5,30 +5,30 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/ellvisca/convert-node-go/app"
-	"github.com/ellvisca/convert-node-go/controllers"
+	"github.com/ellvisca/todolist/app"
+	"github.com/ellvisca/todolist/controllers"
 	"github.com/gorilla/mux"
+	"github.com/maple-ai/syrup"
 )
 
 func main() {
-
-	router := mux.NewRouter()
+	router := syrup.New(mux.NewRouter())
 
 	//User router
-	router.HandleFunc("/api/user", controllers.CreateUser).Methods("POST")
-	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
-	router.HandleFunc("/api/user/me", controllers.CurrentUser).Methods("GET")
+	router.Post("/api/user", controllers.CreateUser)
+	router.Post("/api/user/login", controllers.Authenticate)
+	router.Get("/api/user/me", controllers.CurrentUser)
 
 	//Task router
-	router.HandleFunc("/api/task", controllers.CreateTask).Methods("POST")
-	router.HandleFunc("/api/task/me", controllers.MyTask).Methods("GET")
+	router.Post("/api/task", controllers.CreateTask)
+	router.Get("/api/task/me", controllers.MyTask)
 
 	//Middleware
 	router.Use(app.JwtAuthentication)
 
-	port := os.Getenv("PORT") //Get port from .env file, we did not specify any port so this should return an empty string when tested locally
+	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8000" //localhost
+		port = "8000"
 	}
 
 	fmt.Println("Listening on port ", port)
@@ -37,5 +37,4 @@ func main() {
 	if err != nil {
 		fmt.Print(err)
 	}
-
 }
