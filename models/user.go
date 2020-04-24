@@ -81,3 +81,5 @@ func Current(u primitive.ObjectID) *User {
 
 	return user
 }
+
+//Update user information

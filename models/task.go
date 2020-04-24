@@ -15,7 +15,7 @@ type Task struct {
 	Title            string             `json:"title"`
 	DueDate          string             `json:"dueDate"`
 	Importance       int                `json:"importance"`
-	Completed        bool               `json:"false"`
+	Completed        bool               `json:"completed"`
 	Owner            primitive.ObjectID `json:"owner"`
 }
 
@@ -29,11 +29,11 @@ func (task *Task) Create() map[string]interface{} {
 	return response
 }
 
-//Get current user task
-func MyTask(user primitive.ObjectID) []*Task {
+//Get current user tasks
+func MyTask(userId primitive.ObjectID) []*Task {
 	tasks := make([]*Task, 0)
 
-	filter := bson.M{"owner": user}
+	filter := bson.M{"owner": userId}
 	collection := GetDB().Collection("tasks")
 	cur, err := collection.Find(context.TODO(), filter)
 
@@ -49,7 +49,8 @@ func MyTask(user primitive.ObjectID) []*Task {
 		// create a value into which the single document can be decoded
 		task := &Task{}
 		// & character returns the memory address of the following variable.
-		err := cur.Decode(&task) // decode similar to deserialize process.
+		// decode similar to deserialize process.
+		err := cur.Decode(&task)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -59,4 +60,25 @@ func MyTask(user primitive.ObjectID) []*Task {
 	}
 
 	return tasks
+}
+
+//Edit user task
+func (task *Task) Edit(userId, taskId primitive.ObjectID) map[string]interface{} {
+	filter := bson.M{"_id": taskId, "owner": userId}
+	collection := GetDB().Collection("tasks")
+
+	update := bson.M{
+		"$set": bson.M{
+			"title":      task.Title,
+			"dueDate":    task.DueDate,
+			"importance": task.Importance,
+			"completed":  task.Completed,
+		},
+	}
+
+	collection.UpdateOne(context.TODO(), filter, update)
+
+	response := u.Message(true, "Task has been edited")
+	response["task"] = task
+	return response
 }
