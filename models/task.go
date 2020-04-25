@@ -76,9 +76,19 @@ func (task *Task) Edit(userId, taskId primitive.ObjectID) map[string]interface{}
 		},
 	}
 
-	collection.UpdateOne(context.TODO(), filter, update)
+	collection.FindOneAndUpdate(context.TODO(), filter, update)
 
 	response := u.Message(true, "Task has been edited")
 	response["task"] = task
+	return response
+}
+
+//Delete user task
+func (task *Task) Delete(userId, taskId primitive.ObjectID) map[string]interface{} {
+	filter := bson.M{"_id": taskId, "owner": userId}
+	collection := GetDB().Collection("tasks")
+
+	collection.FindOneAndDelete(context.TODO(), filter)
+	response := u.Message(true, "Task has been deleted")
 	return response
 }

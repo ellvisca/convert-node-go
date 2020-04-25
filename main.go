@@ -23,6 +23,7 @@ func main() {
 	router.Post("/api/task", controllers.CreateTask)
 	router.Get("/api/task/me", controllers.MyTask)
 	router.Put("/api/task", controllers.EditTask)
+	router.Delete("/api/task", controllers.DeleteTask)
 
 	//Middleware
 	router.Use(app.JwtAuthentication)
