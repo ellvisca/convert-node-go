@@ -50,3 +50,13 @@ var EditTask = func(w http.ResponseWriter, r *http.Request) {
 	resp["data"] = data
 	u.Respond(w, resp)
 }
+
+var DeleteTask = func(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value("user").(primitive.ObjectID)
+	keys := r.URL.Query()["taskId"]
+	taskId, _ := primitive.ObjectIDFromHex(keys[0])
+
+	task := &models.Task{}
+	resp := task.Delete(userId, taskId)
+	u.Respond(w, resp)
+}
